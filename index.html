@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)" />
+  <meta name="description" content="AutopostAlphared publishes original daily technology-news photo carousels to the developer-owned @alphared_news TikTok account using TikTok's Content Posting API." />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap" rel="stylesheet" />
+  <title>AutopostAlphared</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-2: #eef2f6;
+      --ink: #17202b;
+      --muted: #536171;
+      --subtle: #718093;
+      --line: #dbe2e9;
+      --accent: #d6293e;
+      --accent-strong: #ac1f31;
+      --accent-soft: #feecef;
+      --navy: #132b43;
+      --navy-soft: #e6eef6;
+      --success: #1f7a55;
+      --shadow: 0 18px 44px rgba(20, 39, 60, .08);
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --max: 1140px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --surface: #151b23;
+        --surface-2: #1b232d;
+        --ink: #f1f5f8;
+        --muted: #b6c0cb;
+        --subtle: #8f9baa;
+        --line: #2d3743;
+        --accent: #ff5266;
+        --accent-strong: #ff7989;
+        --accent-soft: #381b22;
+        --navy: #d9e9f8;
+        --navy-soft: #1b3044;
+        --success: #62cca1;
+        --shadow: 0 18px 44px rgba(0, 0, 0, .25);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+      backdrop-filter: blur(14px);
+    }
+    .nav {
+      max-width: var(--max);
+      margin: 0 auto;
+      min-height: 70px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 8px 13px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .nav a:hover { color: var(--ink); background: var(--surface-2); }
+    .nav a[aria-current="page"] { color: var(--accent-strong); background: var(--accent-soft); }
+    .page { display: none; }
+    .page.active { display: block; }
+    .wrap { width: min(calc(100% - 48px), var(--max)); margin: 0 auto; }
+    .home-hero {
+      padding: 96px 0 68px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(330px, .88fr);
+      gap: 72px;
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 18px;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 2px; background: currentColor; }
+    h1, h2, h3 { margin-top: 0; line-height: 1.15; letter-spacing: -.025em; }
+    h1 { max-width: 760px; margin-bottom: 24px; font-size: clamp(2.6rem, 6vw, 5.25rem); font-weight: 600; }
+    .hero-copy { max-width: 650px; margin: 0 0 30px; color: var(--muted); font-size: clamp(1.05rem, 1.8vw, 1.25rem); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 11px 18px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 3px 12px rgba(20, 39, 60, .04);
+    }
+    .button.primary { border-color: var(--navy); background: var(--navy); color: var(--bg); }
+    @media (prefers-color-scheme: dark) { .button.primary { color: #0d1117; } }
+    .flow-card {
+      position: relative;
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .flow-card::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 7px; height: 100%;
+      background: var(--accent);
+    }
+    .flow-label { margin: 0 0 24px; color: var(--subtle); font: 500 12px/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .flow-step { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; }
+    .flow-step + .flow-step { margin-top: 18px; }
+    .flow-number { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--navy-soft); color: var(--navy); font: 500 13px "IBM Plex Mono", monospace; }
+    .flow-step h3 { margin: 0 0 3px; font-size: 16px; }
+    .flow-step p { margin: 0; color: var(--muted); font-size: 14px; }
+    .connector { width: 1px; height: 18px; margin: 0 0 0 18px; background: var(--line); }
+    .section { padding: 72px 0; }
+    .section.ruled { border-top: 1px solid var(--line); }
+    .section-head { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 48px; margin-bottom: 40px; align-items: start; }
+    .section-head h2 { margin-bottom: 0; font-size: clamp(1.8rem, 4vw, 3rem); }
+    .section-head p { max-width: 700px; margin: 0; color: var(--muted); font-size: 18px; }
+    .feature-list { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .feature { padding: 30px 28px 28px 0; }
+    .feature + .feature { padding-left: 28px; border-left: 1px solid var(--line); }
+    .feature-index { display: block; margin-bottom: 24px; color: var(--accent-strong); font: 500 12px "IBM Plex Mono", monospace; }
+    .feature h3 { margin-bottom: 10px; font-size: 19px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+    .scope-panel {
+      padding: clamp(28px, 5vw, 54px);
+      display: grid;
+      grid-template-columns: .82fr 1.18fr;
+      gap: 50px;
+      border-radius: var(--radius-lg);
+      background: var(--navy);
+      color: var(--bg);
+    }
+    @media (prefers-color-scheme: dark) { .scope-panel { color: #0d1117; } }
+    .scope-panel h2 { margin-bottom: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); }
+    .scope-list { margin: 0; padding: 0; list-style: none; }
+    .scope-list li { padding: 15px 0; border-top: 1px solid color-mix(in srgb, var(--bg) 28%, transparent); display: flex; gap: 12px; }
+    @media (prefers-color-scheme: dark) { .scope-list li { border-color: rgba(13,17,23,.25); } }
+    .scope-list li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+    .contact-strip { padding: 54px 0 70px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+    .contact-strip h2 { margin-bottom: 8px; font-size: 28px; }
+    .contact-strip p { margin: 0; color: var(--muted); }
+    .email-link { color: var(--accent-strong); font-weight: 700; overflow-wrap: anywhere; }
+    .legal-hero { padding: 84px 0 46px; border-bottom: 1px solid var(--line); }
+    .legal-hero h1 { margin-bottom: 16px; font-size: clamp(2.7rem, 7vw, 4.8rem); }
+    .legal-meta { margin: 0; color: var(--muted); }
+    .legal-layout { padding: 58px 0 90px; display: grid; grid-template-columns: 220px minmax(0, 760px); gap: 70px; align-items: start; }
+    .legal-aside { position: sticky; top: 96px; }
+    .legal-aside strong { display: block; margin-bottom: 10px; font-size: 13px; }
+    .legal-aside p { margin: 0; color: var(--muted); font-size: 14px; }
+    .legal-content h2 { margin: 42px 0 14px; font-size: 24px; scroll-margin-top: 100px; }
+    .legal-content h2:first-child { margin-top: 0; }
+    .legal-content p, .legal-content li { color: var(--muted); }
+    .legal-content ul { padding-left: 22px; }
+    .legal-content li + li { margin-top: 8px; }
+    .legal-content strong { color: var(--ink); }
+    .note {
+      margin: 28px 0;
+      padding: 20px 22px;
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+    .site-footer { border-top: 1px solid var(--line); }
+    .footer-inner { min-height: 92px; display: flex; align-items: center; justify-content: space-between; gap: 24px; color: var(--subtle); font-size: 13px; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 18px; }
+    .footer-links a { text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); }
+    .skip-link { position: fixed; left: 12px; top: -60px; z-index: 100; padding: 10px 14px; background: var(--ink); color: var(--bg); text-decoration: none; }
+    .skip-link:focus { top: 12px; }
+    @media (max-width: 820px) {
+      .nav { justify-content: center; min-height: 62px; padding: 0 12px; }
+      .nav a { padding: 7px 10px; font-size: 13px; }
+      .wrap { width: min(calc(100% - 32px), var(--max)); }
+      .home-hero { padding: 62px 0 48px; grid-template-columns: 1fr; gap: 44px; }
+      h1 { font-size: clamp(2.5rem, 13vw, 4rem); }
+      .section { padding: 52px 0; }
+      .section-head, .scope-panel { grid-template-columns: 1fr; gap: 25px; }
+      .feature-list { grid-template-columns: 1fr; }
+      .feature { padding: 26px 0; }
+      .feature + .feature { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+      .contact-strip { align-items: flex-start; flex-direction: column; }
+      .legal-hero { padding: 58px 0 38px; }
+      .legal-layout { padding: 38px 0 70px; grid-template-columns: 1fr; gap: 30px; }
+      .legal-aside { position: static; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+      .footer-inner { padding: 24px 0; align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 440px) {
+      .nav { overflow: hidden; }
+      .nav a { padding-inline: 8px; }
+      .hero-actions .button { width: 100%; }
+      .flow-card { padding: 24px 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#/home" data-route="home">Overview</a>
+      <a href="#/terms" data-route="terms">Terms</a>
+      <a href="#/privacy" data-route="privacy">Privacy</a>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="page" id="page-home" data-page="home" aria-labelledby="home-title">
+      <div class="wrap home-hero">
+        <div>
+          <p class="eyebrow">TikTok Content Posting API integration</p>
+          <h1 id="home-title">Technology news, prepared once and published reliably.</h1>
+          <p class="hero-copy">AutopostAlphared is a private publishing tool that sends original daily technology-news photo carousels to the developer-owned TikTok account <strong>@alphared_news</strong>.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#how-it-works">How it works</a>
+            <a class="button" href="mailto:akunshopee2601@gmail.com">Contact the developer</a>
+          </div>
+        </div>
+        <aside class="flow-card" aria-label="Publishing workflow summary">
+          <p class="flow-label">Publishing workflow</p>
+          <div class="flow-step"><span class="flow-number">01</span><div><h3>Editorial preparation</h3><p>Technology news is researched, written, and designed as a photo carousel.</p></div></div>
+          <div class="connector" aria-hidden="true"></div>
+          <div class="flow-step"><span class="flow-number">02</span><div><h3>Account authorization</h3><p>The developer authorizes the owned TikTok account through TikTok OAuth.</p></div></div>
+          <div class="connector" aria-hidden="true"></div>
+          <div class="flow-step"><span class="flow-number">03</span><div><h3>API publishing</h3><p>The approved content is delivered through TikTok's Content Posting API.</p></div></div>
+        </aside>
+      </div>
+
+      <section class="section ruled" id="how-it-works">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>A focused publishing workflow</h2>
+            <p>The application exists for one operational purpose: helping the developer publish prepared technology-news content to an account they own and manage.</p>
+          </div>
+          <div class="feature-list">
+            <article class="feature"><span class="feature-index">01 / PREPARE</span><h3>Original editorial assets</h3><p>Each post is assembled from a reviewed caption and a purpose-designed sequence of news images.</p></article>
+            <article class="feature"><span class="feature-index">02 / AUTHORIZE</span><h3>Explicit TikTok access</h3><p>The connected account is authorized using TikTok's official OAuth flow and approved permission scopes.</p></article>
+            <article class="feature"><span class="feature-index">03 / PUBLISH</span><h3>Controlled delivery</h3><p>Content is published only to @alphared_news through the official Content Posting API.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap scope-panel">
+          <h2>Limited by design</h2>
+          <ul class="scope-list">
+            <li>Used only by the developer and not offered as a public consumer service.</li>
+            <li>Connects only to the developer-owned @alphared_news TikTok account.</li>
+            <li>Requests only the TikTok permissions needed to identify the account and publish content.</li>
+            <li>Does not sell personal information or run third-party advertising.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section ruled">
+        <div class="wrap contact-strip">
+          <div><h2>Questions about the integration?</h2><p>Contact the developer for product, policy, or data inquiries.</p></div>
+          <a class="email-link" href="mailto:akunshopee2601@gmail.com">akunshopee2601@gmail.com</a>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" id="page-terms" data-page="terms" aria-labelledby="terms-title">
+      <div class="legal-hero"><div class="wrap"><p class="eyebrow">Legal</p><h1 id="terms-title">Terms of Service</h1><p class="legal-meta">Effective October 8, 2026 · Last updated October 8, 2026</p></div></div>
+      <div class="wrap legal-layout">
+        <aside class="legal-aside"><strong>Plain-language scope</strong><p>These terms govern the private use of AutopostAlphared by its developer.</p></aside>
+        <article class="legal-content">
+          <h2>1. Acceptance of these terms</h2>
+          <p>These Terms of Service (the “Terms”) govern access to and use of AutopostAlphared (the “Application”). By accessing or using the Application, you agree to be bound by these Terms. If you do not agree, do not use the Application.</p>
+
+          <h2>2. Application purpose</h2>
+          <p>AutopostAlphared is a private content-publishing tool used by its developer to publish prepared technology-news photo carousels to the developer-owned TikTok account <strong>@alphared_news</strong> through TikTok's Content Posting API. It is not offered as a public, multi-user service.</p>
+
+          <h2>3. Eligibility and authorization</h2>
+          <p>You may use the Application only if you are authorized to control the connected TikTok account and may lawfully agree to these Terms. You must not use the Application to access, control, or publish to an account you do not own or administer.</p>
+
+          <h2>4. Permitted use</h2>
+          <p>The Application may be used only to prepare, upload, and publish lawful content to an authorized TikTok account. You agree to comply with applicable laws, these Terms, TikTok's terms, policies, developer requirements, and community guidelines.</p>
+
+          <h2>5. Prohibited use</h2>
+          <p>You may not use the Application to:</p>
+          <ul>
+            <li>publish unlawful, deceptive, infringing, abusive, or harmful content;</li>
+            <li>gain unauthorized access to an account, token, system, or data;</li>
+            <li>interfere with or circumvent TikTok's platform controls, rate limits, or review processes;</li>
+            <li>misrepresent the source, sponsorship, or ownership of published content; or</li>
+            <li>use the Application in a way that violates another person's rights.</li>
+          </ul>
+
+          <h2>6. Content responsibility</h2>
+          <p>The person operating the Application remains responsible for the accuracy, legality, rights clearance, and appropriateness of all content submitted for publication. AutopostAlphared does not independently endorse or verify user-submitted content.</p>
+
+          <h2>7. TikTok services</h2>
+          <p>The Application depends on services provided by TikTok, including authentication and the Content Posting API. TikTok is a third-party service and is not controlled by AutopostAlphared. Availability, review, processing, and publication may be affected by TikTok's systems and policies.</p>
+
+          <h2>8. Availability and changes</h2>
+          <p>The Application is provided on an “as is” and “as available” basis. Features may be changed, suspended, or discontinued without notice. There is no guarantee that any upload or publication will be uninterrupted, timely, or error-free.</p>
+
+          <h2>9. Disclaimer and limitation of liability</h2>
+          <p>To the fullest extent permitted by law, the developer disclaims implied warranties of merchantability, fitness for a particular purpose, and non-infringement. The developer will not be liable for indirect, incidental, special, consequential, or punitive damages, or for loss of content, access, revenue, or opportunity arising from use of the Application.</p>
+
+          <h2>10. Termination</h2>
+          <p>Access may be suspended or terminated if these Terms are violated, if TikTok access is revoked, or if continued operation creates legal, security, or platform-compliance risk. TikTok authorization may also be revoked through the relevant TikTok account settings.</p>
+
+          <h2>11. Changes to these terms</h2>
+          <p>These Terms may be updated when the Application, applicable law, or platform requirements change. The “Last updated” date at the top of this page identifies the current version.</p>
+
+          <h2>12. Contact</h2>
+          <p>For questions about these Terms, contact <a class="email-link" href="mailto:akunshopee2601@gmail.com">akunshopee2601@gmail.com</a>.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="page" id="page-privacy" data-page="privacy" aria-labelledby="privacy-title">
+      <div class="legal-hero"><div class="wrap"><p class="eyebrow">Legal</p><h1 id="privacy-title">Privacy Policy</h1><p class="legal-meta">Effective October 8, 2026 · Last updated October 8, 2026</p></div></div>
+      <div class="wrap legal-layout">
+        <aside class="legal-aside"><strong>Privacy at a glance</strong><p>Only information needed to connect the developer-owned TikTok account and publish approved content is processed.</p></aside>
+        <article class="legal-content">
+          <h2>1. Scope</h2>
+          <p>This Privacy Policy explains how AutopostAlphared (the “Application”) handles information when used to publish prepared technology-news photo carousels to the developer-owned TikTok account <strong>@alphared_news</strong>.</p>
+          <div class="note">AutopostAlphared is currently a private, single-operator tool. It is not offered as a public platform for third-party creators or consumers.</div>
+
+          <h2>2. Information processed</h2>
+          <p>When the TikTok account is connected through TikTok's OAuth process, the Application may process:</p>
+          <ul>
+            <li><strong>basic account information</strong> returned by TikTok, such as the account's unique platform identifier, display name, and profile image, when included in the approved scope;</li>
+            <li><strong>authorization information</strong>, including access and refresh tokens needed to maintain the authorized connection;</li>
+            <li><strong>publishing content</strong>, including image files, captions, titles, and related posting instructions submitted for publication; and</li>
+            <li><strong>technical records</strong> necessary to diagnose publication status, errors, and security events.</li>
+          </ul>
+
+          <h2>3. How information is used</h2>
+          <p>Information is used only to:</p>
+          <ul>
+            <li>authenticate and identify the authorized TikTok account;</li>
+            <li>upload and publish approved content through TikTok's Content Posting API;</li>
+            <li>confirm publication status and diagnose failed requests;</li>
+            <li>maintain the security and reliability of the Application; and</li>
+            <li>comply with legal and TikTok platform requirements.</li>
+          </ul>
+
+          <h2>4. Legal basis and authorization</h2>
+          <p>Processing occurs at the direction of the account owner after explicit authorization through TikTok OAuth, and as necessary to provide the requested publishing functionality. Authorization can be withdrawn by revoking the Application's access in the relevant TikTok account settings.</p>
+
+          <h2>5. Sharing and disclosure</h2>
+          <p>Information is transmitted to TikTok as needed to authenticate the account and publish content. Information is not sold, rented, or used for third-party advertising. It may be disclosed only when required by law, to protect rights or security, or to service providers strictly necessary to operate the Application under appropriate confidentiality obligations.</p>
+
+          <h2>6. Data retention</h2>
+          <p>Authorization information is retained only while the TikTok connection remains active or as needed to provide the publishing function. Publishing content and technical records are retained only for operational, security, troubleshooting, and legal purposes, then deleted or anonymized when no longer necessary.</p>
+
+          <h2>7. Security</h2>
+          <p>Reasonable administrative and technical safeguards are used to protect information from unauthorized access, alteration, disclosure, or destruction. No electronic system is completely secure, and absolute security cannot be guaranteed.</p>
+
+          <h2>8. User choices and rights</h2>
+          <p>Depending on applicable law, you may request access to, correction of, or deletion of personal information associated with the Application, or object to or restrict certain processing. You may also revoke TikTok authorization at any time through TikTok account settings. To submit a privacy request, use the contact address below.</p>
+
+          <h2>9. Children's privacy</h2>
+          <p>The Application is not directed to children and is not intended for use by anyone under the minimum age required to use TikTok in their jurisdiction. The Application does not knowingly collect personal information from children.</p>
+
+          <h2>10. International processing</h2>
+          <p>Information may be processed in locations where the Application's service providers operate. Where required, reasonable measures are used to protect information in accordance with applicable law.</p>
+
+          <h2>11. Policy changes</h2>
+          <p>This Privacy Policy may be updated to reflect changes to the Application, law, or TikTok platform requirements. The “Last updated” date at the top of this page identifies the current version.</p>
+
+          <h2>12. Contact</h2>
+          <p>For privacy questions or requests, contact <a class="email-link" href="mailto:akunshopee2601@gmail.com">akunshopee2601@gmail.com</a>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 AutopostAlphared</span>
+      <nav class="footer-links" aria-label="Legal navigation">
+        <a href="#/home">Overview</a><a href="#/terms">Terms of Service</a><a href="#/privacy">Privacy Policy</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var pages = document.querySelectorAll('[data-page]');
+      var links = document.querySelectorAll('[data-route]');
+      var titles = {
+        home: 'AutopostAlphared',
+        terms: 'Terms of Service | AutopostAlphared',
+        privacy: 'Privacy Policy | AutopostAlphared'
+      };
+      function getRoute() {
+        var value = window.location.hash.replace(/^#\/?/, '').split('/')[0];
+        return value === 'terms' || value === 'privacy' ? value : 'home';
+      }
+      function render() {
+        var route = getRoute();
+        pages.forEach(function (page) {
+          page.classList.toggle('active', page.getAttribute('data-page') === route);
+        });
+        links.forEach(function (link) {
+          if (link.getAttribute('data-route') === route) link.setAttribute('aria-current', 'page');
+          else link.removeAttribute('aria-current');
+        });
+        document.title = titles[route];
+        if (window.location.hash.indexOf('#/') === 0) window.scrollTo(0, 0);
+      }
+      window.addEventListener('hashchange', render);
+      render();
+    }());
+  </script>
+</body>
+</html>
